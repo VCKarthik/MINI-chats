@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getInfo, sendMessage } from "./api.js";
+import { AuthError, getInfo, getSession, logout, sendMessage } from "./api.js";
 import { detectVibe, splashWord } from "./vibe.js";
 import { ROWS, SURPRISES } from "./rows.js";
 import Intro from "./components/Intro.jsx";
@@ -10,6 +10,8 @@ import ChatView from "./components/ChatView.jsx";
 import Sparkles from "./components/Sparkles.jsx";
 import VibeSplash from "./components/VibeSplash.jsx";
 import HowItWorks from "./components/HowItWorks.jsx";
+import LockScreen from "./components/LockScreen.jsx";
+import { LogoM } from "./components/Logo.jsx";
 
 function shouldPlayIntro() {
   try {
@@ -29,13 +31,33 @@ export default function App() {
   const [model, setModel] = useState("");
   const [splash, setSplash] = useState(null);
   const [showInfo, setShowInfo] = useState(false);
+  // "checking" until the server says whether a passkey is needed
+  const [auth, setAuth] = useState({ status: "checking", required: false });
   const sparkles = useRef(null);
 
   useEffect(() => {
+    getSession()
+      .then((s) => setAuth({ status: s.required && !s.authenticated ? "locked" : "open", required: s.required }))
+      .catch(() => setAuth({ status: "open", required: false }));
+  }, []);
+
+  useEffect(() => {
+    if (auth.status !== "open") return;
     getInfo()
       .then((info) => setModel(info.model))
-      .catch(() => setModel("backend offline"));
-  }, []);
+      .catch((err) => (err instanceof AuthError ? lock() : setModel("backend offline")));
+  }, [auth.status]);
+
+  function lock() {
+    setAuth((a) => ({ ...a, status: "locked" }));
+  }
+
+  async function handleLogout() {
+    await logout().catch(() => {});
+    setMessages([]);
+    setView("home");
+    lock();
+  }
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -93,6 +115,7 @@ export default function App() {
       setMessages((prev) => [...prev, { role: "assistant", content: reply, meta: `${secs}s`, vibe }]);
       if (vibe) sparkles.current?.burst(60, window.innerHeight - 160, { count: 50, angle: -Math.PI / 4, spread: 1.2 });
     } catch (err) {
+      if (err instanceof AuthError) lock();
       setMessages((prev) => [...prev, { role: "error", content: err.message }]);
     } finally {
       setLoading(false);
@@ -112,45 +135,58 @@ export default function App() {
       {showIntro && <Intro onDone={finishIntro} />}
       {showInfo && <HowItWorks model={model} onClose={() => setShowInfo(false)} />}
 
-      <Navbar
-        view={view}
-        hasChat={messages.length > 0}
-        onLogo={() => {
-          setView("home");
-          sparkles.current?.burst(70, 34, { count: 45, power: 0.6 });
-        }}
-        onHome={() => setView("home")}
-        onChat={() => setView("chat")}
-        onNewChat={() => {
-          setMessages([]);
-          setView("chat");
-        }}
-      />
-
-      {view === "home" ? (
-        <main className="home">
-          <Hero
-            model={model}
-            disabled={loading}
-            sparkles={sparkles}
-            onAsk={ask}
-            onSurprise={() => ask(SURPRISES[Math.floor(Math.random() * SURPRISES.length)])}
-            onHowItWorks={() => setShowInfo(true)}
-          />
-          <div className="rows">
-            {recent.length > 0 && (
-              <Row title="Continue Chatting" items={recent} paletteOffset={5} onPick={() => setView("chat")} />
-            )}
-            {ROWS.map((row, i) => (
-              <Row key={row.title} title={row.title} items={row.items} paletteOffset={i * 3} onPick={(item) => ask(item.prompt)} />
-            ))}
-          </div>
-          <footer className="foot">
-            mini · powered by {model || "…"}
-          </footer>
+      {auth.status === "checking" && (
+        <main className="boot">
+          <LogoM />
         </main>
-      ) : (
-        <ChatView messages={messages} loading={loading} onSend={ask} onBack={() => setView("home")} />
+      )}
+
+      {auth.status === "locked" && (
+        <LockScreen sparkles={sparkles} onUnlock={() => setAuth((a) => ({ ...a, status: "open" }))} />
+      )}
+
+      {auth.status === "open" && (
+        <>
+          <Navbar
+            view={view}
+            hasChat={messages.length > 0}
+            onLock={auth.required ? handleLogout : null}
+            onLogo={() => {
+              setView("home");
+              sparkles.current?.burst(70, 34, { count: 45, power: 0.6 });
+            }}
+            onHome={() => setView("home")}
+            onChat={() => setView("chat")}
+            onNewChat={() => {
+              setMessages([]);
+              setView("chat");
+            }}
+          />
+
+          {view === "home" ? (
+            <main className="home">
+              <Hero
+                model={model}
+                disabled={loading}
+                sparkles={sparkles}
+                onAsk={ask}
+                onSurprise={() => ask(SURPRISES[Math.floor(Math.random() * SURPRISES.length)])}
+                onHowItWorks={() => setShowInfo(true)}
+              />
+              <div className="rows">
+                {recent.length > 0 && (
+                  <Row title="Continue Chatting" items={recent} paletteOffset={5} onPick={() => setView("chat")} />
+                )}
+                {ROWS.map((row, i) => (
+                  <Row key={row.title} title={row.title} items={row.items} paletteOffset={i * 3} onPick={(item) => ask(item.prompt)} />
+                ))}
+              </div>
+              <footer className="foot">mini · powered by {model || "…"}</footer>
+            </main>
+          ) : (
+            <ChatView messages={messages} loading={loading} onSend={ask} onBack={() => setView("home")} />
+          )}
+        </>
       )}
     </>
   );

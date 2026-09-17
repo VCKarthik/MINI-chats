@@ -51,4 +51,14 @@ frontend/src/
   components/   Navbar, Hero, Row, ChatView, Message, Composer, Sparkles, Intro, ...
 ```
 
+## Passkey
+
+Set `APP_PASSKEY` (in `.env` locally, or in your host's environment settings) to lock the site behind a passkey. Leave it empty to keep it open. Wrong guesses are rate-limited, a correct passkey keeps you signed in for 7 days, and changing it signs everyone out.
+
+## Deploy (Render)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/VCKarthik/MINI-chats)
+
+Click the button, sign in with GitHub, and fill in `GOOGLE_API_KEY` and `APP_PASSKEY` when asked. Settings come from `render.yaml`. Every push to `main` redeploys.
+
 To change the model, edit `botnew.py`. To change the port, edit `PORT` in `app.py` (and the proxy in `frontend/vite.config.js`).

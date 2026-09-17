@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { LogoM, Wordmark } from "./Logo.jsx";
 import Avatar from "./Avatar.jsx";
 
-export default function Navbar({ view, hasChat, onLogo, onHome, onChat, onNewChat }) {
+export default function Navbar({ view, hasChat, onLogo, onHome, onChat, onNewChat, onLock }) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -31,6 +31,11 @@ export default function Navbar({ view, hasChat, onLogo, onHome, onChat, onNewCha
         <button className="nav-new" onClick={onNewChat} aria-label="New chat">
           + <span className="label">New chat</span>
         </button>
+        {onLock && (
+          <button className="nav-new" onClick={onLock} aria-label="Lock mini">
+            🔒 <span className="label">Lock</span>
+          </button>
+        )}
         <Avatar />
       </div>
     </nav>

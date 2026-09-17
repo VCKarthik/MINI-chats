@@ -170,7 +170,7 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 .nav-links button.active { color: #fff; font-weight: 700; }
 .nav-links .dot { position: absolute; top: 2px; right: -9px; width: 6px; height: 6px; border-radius: 50%; background: var(--red); box-shadow: 0 0 8px var(--red); }
 .nav-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
-.nav-new { padding: 6px 12px; border: 1px solid rgba(255, 255, 255, .4); border-radius: 4px; background: transparent; font-size: 13px; transition: border-color .2s, background-color .2s; }
+.nav-new { display: inline-flex; align-items: center; gap: 4px; line-height: 1.2; padding: 6px 12px; border: 1px solid rgba(255, 255, 255, .4); border-radius: 4px; background: transparent; font-size: 13px; transition: border-color .2s, background-color .2s; }
 .nav-new:hover { border-color: #fff; background: rgba(255, 255, 255, .08); }
 
 .avatar { flex: none; width: 32px; height: 32px; border-radius: 4px; display: grid; place-items: center; overflow: hidden; }
@@ -527,4 +527,110 @@ button:disabled { cursor: not-allowed; opacity: .5; }
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }
+}
+
+/* ---------- Passkey lock ---------- */
+.boot { min-height: 100dvh; display: grid; place-items: center; }
+.boot .logo-m { font-size: 110px; animation: pulse-glow 1.6s ease-in-out infinite; }
+
+.lock {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16px 40px;
+  background: radial-gradient(900px 500px at 50% 0%, rgba(229, 9, 20, .22), transparent 70%), var(--bg);
+}
+.lock-top { align-self: stretch; height: var(--nav-h); display: flex; align-items: center; padding: 0 4%; }
+.lock-card {
+  width: 100%;
+  max-width: 420px;
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: modal-in .45s cubic-bezier(.2, .8, .2, 1);
+}
+.lock-avatar {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: radial-gradient(circle at 30% 20%, #2a0a0d, #000 70%);
+  border: 2px solid #333;
+  box-shadow: 0 10px 40px rgba(229, 9, 20, .25);
+}
+.lock-avatar .logo-m { font-size: 110px; transform: translateY(8px); animation: pulse-glow 2.4s ease-in-out infinite; }
+.lock-badge {
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .5);
+}
+.lock-card h1 { margin: 28px 0 6px; font-size: clamp(24px, 5vw, 32px); font-weight: 500; }
+.lock-sub { margin: 0 0 24px; color: var(--muted); line-height: 1.45; }
+
+.lock-field {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, .35);
+  border-radius: 4px;
+  background: rgba(20, 20, 20, .85);
+  transition: border-color .2s, box-shadow .2s;
+}
+.lock-field:focus-within { border-color: #fff; box-shadow: 0 0 0 4px rgba(229, 9, 20, .3); }
+.lock-field.shake { border-color: var(--red); animation: shake .45s cubic-bezier(.36, .07, .19, .97); }
+.lock-field input {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 18px;
+  letter-spacing: .08em;
+}
+.lock-field input::placeholder { letter-spacing: normal; color: var(--dim); }
+.lock-eye { margin-right: 6px; padding: 6px 10px; border: 0; border-radius: 4px; background: none; color: var(--muted); font-size: 13px; }
+.lock-eye:hover { color: #fff; background: rgba(255, 255, 255, .08); }
+.lock-error { margin: 10px 0 0; color: #ff6b73; font-size: 14px; }
+.lock-submit {
+  width: 100%;
+  margin-top: 18px;
+  padding: 13px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--red);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  transition: background-color .2s, transform .15s;
+}
+.lock-submit:hover:not(:disabled) { background: #f6121d; }
+.lock-submit:active:not(:disabled) { transform: scale(.98); }
+
+@keyframes shake {
+  10%, 90% { transform: translateX(-2px); }
+  20%, 80% { transform: translateX(4px); }
+  30%, 50%, 70% { transform: translateX(-8px); }
+  40%, 60% { transform: translateX(8px); }
+}
+
+@media (max-width: 700px) {
+  .lock-top { padding: 0; }
+  .lock-avatar { width: 112px; height: 112px; }
+  .lock-avatar .logo-m { font-size: 92px; }
 }

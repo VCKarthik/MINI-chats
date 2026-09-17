@@ -1,0 +1,19 @@
+# One-click deploy: https://render.com/deploy?repo=https://github.com/VCKarthik/MINI-chats
+services:
+  - type: web
+    name: mini-chats
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && cd frontend && npm ci && npm run build
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/session
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: NODE_VERSION
+        value: "22"
+      - key: GOOGLE_API_KEY
+        sync: false # entered in the Render dashboard, never committed
+      - key: APP_PASSKEY
+        sync: false
