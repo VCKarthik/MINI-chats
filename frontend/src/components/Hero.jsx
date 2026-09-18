@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { LogoM } from "./Logo.jsx";
 import Composer from "./Composer.jsx";
 
-export default function Hero({ model, disabled, sparkles, onAsk, onSurprise, onHowItWorks }) {
+export default function Hero({ model, backend, disabled, sparkles, onAsk, onSurprise, onHowItWorks }) {
   const ref = useRef(null);
   const lastTrail = useRef(0);
 
@@ -40,7 +40,7 @@ export default function Hero({ model, disabled, sparkles, onAsk, onSurprise, onH
           <span className="match">98% Match</span>
           <span className="pill">AI</span>
           <span>{model || "…"}</span>
-          <span className="pill">HD</span>
+          <span className="pill">{backend === "ollama" ? "LOCAL" : "HD"}</span>
         </p>
         <p className="hero-desc">
           Your pocket-sized AI. Ask anything, pick a title below, or just say <em>hi</em> and watch what happens.

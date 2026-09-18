@@ -13,6 +13,7 @@ git clone https://github.com/VCKarthik/MINI-chats.git
 cd MINI-chats
 
 pip install -r requirements.txt
+pip install -r requirements-local.txt   # optional: local Ollama model
 cp .env.example .env          # then put your Gemini API key in .env
 
 cd frontend
@@ -44,12 +45,25 @@ Open http://localhost:5173
 ```
 app.py          FastAPI: /api/chat, /api/info, serves the built React app
 botnew.py       Gemini model and ask() helper
+localbot.py     local Ollama model, same ask() helper
+chat_messages.py  shared message building
 frontend/src/
   App.jsx       chat state, sending, celebration effects
   rows.js       home page card rows
   vibe.js       greeting / fun prompt detection
   components/   Navbar, Hero, Row, ChatView, Message, Composer, Sparkles, Intro, ...
 ```
+
+## Switching models
+
+`app.py` picks the model at startup from `MODEL_BACKEND`:
+
+| Value | File | Notes |
+|---|---|---|
+| `gemini` (default) | `botnew.py` | Google Gemini API, needs `GOOGLE_API_KEY`, costs money |
+| `ollama` | `localbot.py` | Local `qwen2.5:3b` via Ollama, free, no key |
+
+To use the local model when the API quota runs out, put `MODEL_BACKEND=ollama` in `.env` and restart the server. Ollama must be running (`ollama serve`, `ollama pull qwen2.5:3b`), and the extra package installed once with `pip install -r requirements-local.txt`. The home page shows a `LOCAL` badge when the local model is answering.
 
 ## Passkey
 

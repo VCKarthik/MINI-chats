@@ -6,12 +6,22 @@ from collections import defaultdict, deque
 from pathlib import Path
 from typing import Deque, Dict, List
 
+from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from botnew import ask, model  # also loads .env
+load_dotenv()
+
+# Which model answers: "gemini" (API, costs money) or "ollama" (local, free).
+# Set MODEL_BACKEND=ollama in .env to switch, or change the default here.
+MODEL_BACKEND = os.getenv("MODEL_BACKEND", "gemini")
+
+if MODEL_BACKEND == "ollama":
+    from localbot import ask, model  # local qwen2.5:3b via Ollama
+else:
+    from botnew import ask, model  # Gemini; also loads .env
 
 # React build output (cd frontend && npm run build)
 DIST_DIR = Path(__file__).parent / "frontend" / "dist"
@@ -145,7 +155,7 @@ def chat(req: ChatRequest, request: Request):
 
 @app.get("/api/info", dependencies=[Depends(require_auth)])
 def info():
-    return {"model": model.model.replace("models/", "")}
+    return {"model": model.model.replace("models/", ""), "backend": MODEL_BACKEND}
 
 
 # ---------- React app ----------

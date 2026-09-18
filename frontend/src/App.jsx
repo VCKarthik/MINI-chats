@@ -29,6 +29,7 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [model, setModel] = useState("");
+  const [backend, setBackend] = useState("");
   const [splash, setSplash] = useState(null);
   const [showInfo, setShowInfo] = useState(false);
   // "checking" until the server says whether a passkey is needed
@@ -44,7 +45,10 @@ export default function App() {
   useEffect(() => {
     if (auth.status !== "open") return;
     getInfo()
-      .then((info) => setModel(info.model))
+      .then((info) => {
+        setModel(info.model);
+        setBackend(info.backend);
+      })
       .catch((err) => (err instanceof AuthError ? lock() : setModel("backend offline")));
   }, [auth.status]);
 
@@ -167,6 +171,7 @@ export default function App() {
             <main className="home">
               <Hero
                 model={model}
+                backend={backend}
                 disabled={loading}
                 sparkles={sparkles}
                 onAsk={ask}

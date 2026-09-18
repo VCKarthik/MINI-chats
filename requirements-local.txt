@@ -1,0 +1,3 @@
+# Extra package for running the local Ollama model (MODEL_BACKEND=ollama).
+# Not needed when deploying, where Gemini is used.
+langchain-ollama==0.3.10
